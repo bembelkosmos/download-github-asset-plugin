@@ -1,0 +1,103 @@
+name: CD
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-version-pr-or-release:
+    runs-on: self-hosted
+    outputs:
+      should-deploy: ${{ steps.changesets.outputs.published == 'true' }}
+      release-version: "${{ steps.get-version.outputs.version }}"
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.8.1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Setup Node Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Create Version PR or Github Release
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: npx changeset tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHANGESETS_TOKEN }}
+
+      - name: Echo outputs of changesets
+        run: echo '${{ toJson(steps.changesets.outputs) }}'
+
+      - name: Set Release Version
+        if: steps.changesets.outputs.published == 'true'
+        id: get-version
+        run: echo "version=${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}" >> $GITHUB_OUTPUT
+
+      - name: Echo outputs of get-version
+        if: steps.changesets.outputs.published == 'true'
+        run: echo '${{ toJson(steps.get-version.outputs) }}'
+
+      - name: Set Snapshot Version in pom.xml
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          mvn versions:set -DnextSnapshot=true
+          mvn versions:commit
+
+      - name: Commit updated pom.xml
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add pom.xml **/pom.xml
+          git commit -m "Set Snapshot version"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-pom-version:
+    needs: create-version-pr-or-release
+    if: needs.create-version-pr-or-release.outputs.should-deploy == 'false'
+    uses: ./.github/workflows/Update-Pom-Versions-of-Release.yaml
+    secrets: inherit
+    with:
+      changeset-branch: "changeset-release/main"
+
+  run-tests:
+    needs: create-version-pr-or-release
+    if: needs.create-version-pr-or-release.outputs.should-deploy == 'true'
+    uses: ./.github/workflows/Test.yaml
+    secrets: inherit
+
+#  push-to-maven-central:
+#    needs: [run-tests, create-version-pr-or-release]
+#    uses: ./.github/workflows/Push-to-Maven-Central.yaml
+#    secrets: inherit
+#    with:
+#      release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}
+

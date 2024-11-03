@@ -1,0 +1,86 @@
+name: Update Version of POM of Release
+on:
+  workflow_dispatch:
+    inputs:
+      changeset-branch:
+        description: "Branch of version pull request"
+        required: true
+        default: "changeset-release/main"
+        type: string
+  workflow_call:
+    inputs:
+      changeset-branch:
+        description: "Branch of version pull request"
+        required: true
+        default: "changeset-release/main"
+        type: string
+
+jobs:
+  update-pom-version:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.changeset-branch }}
+
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.8.1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Setup Node Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Set Release Version
+        id: get-version
+        run: |
+          PKG_VERSION=$(npm pkg get version | tr -d '"')
+          POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          POM_VERSION=${POM_VERSION%-SNAPSHOT}
+          
+          echo "Version of package.json: $PKG_VERSION"
+          echo "Version of pom.xml: $POM_VERSION"
+
+          if [ "$PKG_VERSION" == "$POM_VERSION" ]; then
+            UPDATE_VERSION=true
+          elif [ "$(printf '%s\n' "$PKG_VERSION" "$POM_VERSION" | sort -V | head -n 1)" == "$PKG_VERSION" ]; then
+            UPDATE_VERSION=false
+          else
+            UPDATE_VERSION=true
+          fi
+          
+          echo "updateVersion=$UPDATE_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT 
+
+      - name: Echo outputs of get-version
+        run: echo '${{ toJson(steps.get-version.outputs) }}'
+
+      - name: Set Version in pom.xml
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.get-version.outputs.version }}
+          mvn versions:commit
+
+      - name: Commit updated pom.xml
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add pom.xml **/pom.xml
+          git commit -m "Set version to ${{ steps.get-version.outputs.version }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
