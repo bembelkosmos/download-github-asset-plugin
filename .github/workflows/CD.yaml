@@ -74,7 +74,7 @@ jobs:
         run: |
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
-          git add pom.xml **/pom.xml
+          git add pom.xml
           git commit -m "Set Snapshot version"
           git push origin main
         env:
