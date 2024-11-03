@@ -79,7 +79,7 @@ jobs:
         run: |
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
-          git add pom.xml **/pom.xml
+          git add pom.xml
           git commit -m "Set version to ${{ steps.get-version.outputs.version }}"
           git push
         env:
