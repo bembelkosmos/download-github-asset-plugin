@@ -1,0 +1,8 @@
+{
+  "name": "download-github-asset-plugin",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "@changesets/cli": "^2.27.9"
+  }
+}
