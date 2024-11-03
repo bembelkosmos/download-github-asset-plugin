@@ -94,10 +94,10 @@ jobs:
     uses: ./.github/workflows/Test.yaml
     secrets: inherit
 
-#  push-to-maven-central:
-#    needs: [run-tests, create-version-pr-or-release]
-#    uses: ./.github/workflows/Push-to-Maven-Central.yaml
-#    secrets: inherit
-#    with:
-#      release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}
+  push-to-repo:
+    needs: [run-tests, create-version-pr-or-release]
+    uses: ./.github/workflows/Push-to-Repo.yaml
+    secrets: inherit
+    with:
+      release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}
 
