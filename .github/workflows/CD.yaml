@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   create-version-pr-or-release:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       should-deploy: ${{ steps.changesets.outputs.published == 'true' }}
       release-version: "${{ steps.get-version.outputs.version }}"
