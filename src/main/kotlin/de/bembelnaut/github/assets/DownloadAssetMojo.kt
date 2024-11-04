@@ -27,7 +27,7 @@ class DownloadAssetMojo : AbstractMojo() {
     @Parameter(property = "repoName", required = true)
     private lateinit var repoName: String
 
-    @Parameter(property = "version", defaultValue = "latest")
+    @Parameter(property = "version", required = true)
     private lateinit var version: String
 
     @Parameter(property = "assetName", required = true)
