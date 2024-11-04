@@ -42,7 +42,6 @@ class DownloadAssetMojo : AbstractMojo() {
         try {
             HttpClients.createDefault().use { client ->
                 val assetsUrl = fetchAssetsUrlOfRelease(client) ?: throw MojoExecutionException("Release $version not found.")
-
                 val assetUrl = fetchAssetUrl(client, assetsUrl) ?: throw MojoExecutionException("Asset $assetName not found.")
 
                 downloadAsset(client, assetUrl)
