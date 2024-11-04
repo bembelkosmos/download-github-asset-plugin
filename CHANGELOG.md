@@ -1,5 +1,11 @@
 # download-github-asset-plugin
 
+## 1.0.0
+
+### Major Changes
+
+- d2646e5: Plugin goes public
+
 ## 0.1.1
 
 ### Patch Changes
