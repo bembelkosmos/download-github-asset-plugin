@@ -19,22 +19,22 @@ import java.nio.file.Paths
 class DownloadAssetMojo : AbstractMojo() {
 
     @Parameter(property = "githubToken", required = true)
-    private lateinit var githubToken: String
+    internal lateinit var githubToken: String
 
     @Parameter(property = "repoOwner", required = true)
-    private lateinit var repoOwner: String
+    internal lateinit var repoOwner: String
 
     @Parameter(property = "repoName", required = true)
-    private lateinit var repoName: String
+    internal lateinit var repoName: String
 
     @Parameter(property = "version", required = true)
-    private lateinit var version: String
+    internal lateinit var version: String
 
     @Parameter(property = "assetName", required = true)
-    private lateinit var assetName: String
+    internal lateinit var assetName: String
 
     @Parameter(property = "outputFile", required = true)
-    private lateinit var outputFile: String
+    internal lateinit var outputFile: String
 
     private val objectMapper = ObjectMapper()
 
@@ -52,7 +52,7 @@ class DownloadAssetMojo : AbstractMojo() {
         }
     }
 
-    private fun fetchAssetsUrlOfRelease(client: CloseableHttpClient): String? {
+    internal fun fetchAssetsUrlOfRelease(client: CloseableHttpClient): String? {
         val releaseInfoUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/tags/$version"
         log.info("Request info of $releaseInfoUrl")
 
@@ -72,7 +72,7 @@ class DownloadAssetMojo : AbstractMojo() {
         }
     }
 
-    private fun fetchAssetUrl(client: CloseableHttpClient, assetsUrl: String): String? {
+    internal fun fetchAssetUrl(client: CloseableHttpClient, assetsUrl: String): String? {
         log.info("Request assets of $assetsUrl")
 
         val request = HttpGet(assetsUrl).apply {
@@ -88,7 +88,7 @@ class DownloadAssetMojo : AbstractMojo() {
         }
     }
 
-    private fun downloadAsset(client: CloseableHttpClient, assetUrl: String) {
+    internal fun downloadAsset(client: CloseableHttpClient, assetUrl: String) {
         log.info("Download asset $assetUrl")
 
         val request = HttpGet(assetUrl).apply {
