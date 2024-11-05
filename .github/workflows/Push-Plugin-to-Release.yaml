@@ -1,4 +1,4 @@
-name: Push to Repo
+name: Push Plugin to Release
 on:
   workflow_dispatch:
     inputs:
