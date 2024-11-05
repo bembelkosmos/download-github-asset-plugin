@@ -1,5 +1,11 @@
 # download-github-asset-plugin
 
+## 1.0.5
+
+### Patch Changes
+
+- ede9a76: Add tests
+
 ## 1.0.4
 
 ### Patch Changes
