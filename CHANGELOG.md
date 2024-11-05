@@ -1,5 +1,17 @@
 # download-github-asset-plugin
 
+## 1.0.2
+
+### Patch Changes
+
+- c391028: Fix relase workflow
+
+## 1.0.1
+
+### Patch Changes
+
+- 8e9bb33: Fix pom version
+
 ## 1.0.0
 
 ### Major Changes

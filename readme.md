@@ -1,3 +1,5 @@
+![alt text](https://bembelnaut.de/wp-content/uploads/2024/11/Maven-Plugin2-768x768.webp)
+
 # About this plugin
 This Maven plugin loads an asset file from your release and saves it in the directory you specify.
 
