@@ -96,7 +96,7 @@ jobs:
 
   push-to-repo:
     needs: [run-tests, create-version-pr-or-release]
-    uses: ./.github/workflows/Push-to-Repo.yaml
+    uses: ./.github/workflows/Push-Plugin-to-Release.yaml
     secrets: inherit
     with:
       release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}

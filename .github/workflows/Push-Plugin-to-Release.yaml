@@ -15,7 +15,7 @@ on:
 
 jobs:
   create-and-push-to-repo:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout the repository
