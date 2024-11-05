@@ -63,23 +63,6 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         run: echo '${{ toJson(steps.get-version.outputs) }}'
 
-      - name: Set Snapshot Version in pom.xml
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          mvn versions:set -DnextSnapshot=true
-          mvn versions:commit
-
-      - name: Commit updated pom.xml
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          git config --local user.name "GitHub Action"
-          git config --local user.email "action@github.com"
-          git add pom.xml
-          git commit -m "Set Snapshot version"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.CHANGESETS_TOKEN }}
-
   update-pom-version:
     needs: create-version-pr-or-release
     if: needs.create-version-pr-or-release.outputs.should-deploy == 'false'
