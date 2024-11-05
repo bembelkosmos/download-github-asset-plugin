@@ -88,14 +88,14 @@ jobs:
     with:
       changeset-branch: "changeset-release/main"
 
-  run-tests:
+  run-tests-on-release:
     needs: create-version-pr-or-release
     if: needs.create-version-pr-or-release.outputs.should-deploy == 'true'
     uses: ./.github/workflows/Test.yaml
     secrets: inherit
 
   push-to-repo:
-    needs: [run-tests, create-version-pr-or-release]
+    needs: [run-tests-on-release, create-version-pr-or-release]
     uses: ./.github/workflows/Push-Plugin-to-Release.yaml
     secrets: inherit
     with:
