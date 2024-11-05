@@ -1,5 +1,12 @@
 # download-github-asset-plugin
 
+## 1.0.4
+
+### Patch Changes
+
+- 64db649: Fix permission
+- ebfdbbe: Fix duplicate job name
+
 ## 1.0.3
 
 ### Patch Changes
