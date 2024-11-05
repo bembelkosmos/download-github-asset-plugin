@@ -78,7 +78,7 @@ jobs:
           git commit -m "Set Snapshot version"
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CHANGESETS_TOKEN }}
 
   update-pom-version:
     needs: create-version-pr-or-release
