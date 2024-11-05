@@ -1,5 +1,12 @@
 # download-github-asset-plugin
 
+## 1.0.3
+
+### Patch Changes
+
+- f328c98: Test CodeQL in workflow
+- b758afe: Change runner
+
 ## 1.0.2
 
 ### Patch Changes
