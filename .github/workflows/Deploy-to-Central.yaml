@@ -35,16 +35,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-
-      - name: Import GPG key
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          echo $GPG_PRIVATE_KEY | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-          echo $GPG_PASSPHRASE | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --import
           
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          
+      - name: List keys
+        run: gpg -K
 
       - name: Deploy to Sonatype
         env:
