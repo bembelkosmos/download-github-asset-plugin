@@ -41,8 +41,10 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --import
+          echo $GPG_PRIVATE_KEY | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+          echo $GPG_PASSPHRASE | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --import
+          
 
       - name: Deploy to Sonatype
         env:
