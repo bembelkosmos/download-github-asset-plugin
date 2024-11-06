@@ -1,10 +1,10 @@
 package de.bembelnaut.github.assets
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.http.HttpHeaders
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.CloseableHttpClient
-import org.apache.http.impl.client.HttpClients
+import org.apache.hc.client5.http.classic.methods.HttpGet
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+import org.apache.hc.client5.http.impl.classic.HttpClients
+import org.apache.hc.core5.http.HttpHeaders
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugins.annotations.LifecyclePhase
@@ -15,29 +15,62 @@ import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 
+/**
+ * Mojo class to download an asset of a GitHub release.
+ *
+ * The download are divided into four parts:
+ * - fetching the release info to get the assets url
+ * - fetching assets info to get the desired asset
+ * - download and save asset
+ *
+ */
 @Mojo(name = "download-github-asset", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 class DownloadAssetMojo : AbstractMojo() {
 
+    /**
+     * The GitHub access token for accessing private repositories.
+     */
     @Parameter(property = "githubToken", required = true)
     internal lateinit var githubToken: String
 
+    /**
+     * The GitHub username or the organization where the repository is located.
+     */
     @Parameter(property = "repoOwner", required = true)
     internal lateinit var repoOwner: String
 
+    /**
+     * The name of the repository from which the file is downloaded.
+     */
     @Parameter(property = "repoName", required = true)
     internal lateinit var repoName: String
 
+    /**
+     * The version tag of the release. NOT "latest"!
+     */
     @Parameter(property = "version", required = true)
     internal lateinit var version: String
 
+    /**
+     * The name of the file in the release asset.
+     */
     @Parameter(property = "assetName", required = true)
     internal lateinit var assetName: String
 
+    /**
+     * The path where the file is saved.
+     */
     @Parameter(property = "outputFile", required = true)
     internal lateinit var outputFile: String
 
+    /*
+     * Mapper for converting response to JSON.
+     */
     private val objectMapper = ObjectMapper()
 
+    /**
+     * Main function of mojo.
+     */
     override fun execute() {
         try {
             HttpClients.createDefault().use { client ->
@@ -52,6 +85,10 @@ class DownloadAssetMojo : AbstractMojo() {
         }
     }
 
+    /**
+     * Fetching the release info to get the assets url
+     * @return assets url.
+     */
     internal fun fetchAssetsUrlOfRelease(client: CloseableHttpClient): String? {
         val releaseInfoUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/tags/$version"
         log.info("Request info of $releaseInfoUrl")
@@ -61,17 +98,21 @@ class DownloadAssetMojo : AbstractMojo() {
             setHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
         }
 
-        client.execute(request).use { response ->
+        return client.execute(request) { response ->
             val releaseInfoNode = objectMapper.readTree(response.entity.content)
             val assertsUrl = releaseInfoNode["assets_url"]
 
             log.debug("Response of info request: $releaseInfoNode")
             log.info("Response of info request: $assertsUrl")
 
-            return assertsUrl?.asText()
+            assertsUrl?.asText()
         }
     }
 
+    /**
+     * Fetching assets info to get the desired asset
+     * @return single asset url.
+     */
     internal fun fetchAssetUrl(client: CloseableHttpClient, assetsUrl: String): String? {
         log.info("Request assets of $assetsUrl")
 
@@ -80,14 +121,17 @@ class DownloadAssetMojo : AbstractMojo() {
             setHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
         }
 
-        client.execute(request).use { response ->
+        return client.execute(request) { response ->
             val releaseNode = objectMapper.readTree(response.entity.content)
             log.info("Response of assets request: $releaseNode")
 
-            return releaseNode?.find { it["name"].asText() == assetName }?.get("url")?.asText()
+            releaseNode?.find { it["name"].asText() == assetName }?.get("url")?.asText()
         }
     }
 
+    /**
+     * Download and save asset
+     */
     internal fun downloadAsset(client: CloseableHttpClient, assetUrl: String) {
         log.info("Download asset $assetUrl")
 
@@ -96,8 +140,8 @@ class DownloadAssetMojo : AbstractMojo() {
             setHeader(HttpHeaders.ACCEPT, "application/octet-stream")
         }
 
-        client.execute(request).use { response ->
-            log.info("Response of download request: ${response.statusLine}")
+        client.execute(request) { response ->
+            log.info("Response of download request: ${response.code}")
 
             Files.createDirectories(Paths.get(outputFile).parent)
             FileOutputStream(File(outputFile)).use { outputStream ->
