@@ -14,7 +14,7 @@ You can include this plugin simply:
 <plugin>
    <groupId>de.bembelnaut</groupId>
    <artifactId>download-github-assets-plugin</artifactId>
-   <version>1.0.0</version>
+   <version>1.0.6</version>
    <executions>
       <goals>
          <goal>download-github-asset</goal>
@@ -58,7 +58,7 @@ In the following, an OpenApi file is downloaded and then the code generation is 
          <plugin>
             <groupId>de.bembelnaut</groupId>
             <artifactId>download-github-assets-plugin</artifactId>
-            <version>0.1.1</version>
+            <version>1.0.6</version>
             <executions>
                <execution>
                   <goals>
