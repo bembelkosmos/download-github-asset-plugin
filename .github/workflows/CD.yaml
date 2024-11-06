@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should-deploy: ${{ steps.changesets.outputs.published == 'true' }}
+      update-pom-version: ${{ steps.changesets.outputs.hasChangesets == 'true' && steps.changesets.outputs.published == 'false'  }}
       release-version: "${{ steps.get-version.outputs.version }}"
 
     steps:
@@ -65,7 +66,7 @@ jobs:
 
   update-pom-version:
     needs: create-version-pr-or-release
-    if: needs.create-version-pr-or-release.outputs.should-deploy == 'false'
+    if: needs.create-version-pr-or-release.outputs.update-pom-version == 'true'
     uses: ./.github/workflows/Update-Pom-Versions-of-Release.yaml
     secrets: inherit
     with:
