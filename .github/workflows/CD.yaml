@@ -84,3 +84,9 @@ jobs:
     with:
       release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}
 
+  deploy-to-central:
+    needs: [run-tests-on-release, create-version-pr-or-release]
+    uses: ./.github/workflows/Deploy-to-Central.yaml
+    secrets: inherit
+    with:
+      release-version: ${{ needs.create-version-pr-or-release.outputs.release-version }}
