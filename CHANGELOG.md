@@ -1,5 +1,14 @@
 # download-github-asset-plugin
 
+## 1.0.6
+
+### Patch Changes
+
+- 307bc99: Add deploy to central workflow
+  Add javadoc
+  Change httpclient version
+  Add plugins for signing and deploying
+
 ## 1.0.5
 
 ### Patch Changes
